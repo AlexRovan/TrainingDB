@@ -139,7 +139,7 @@ namespace ADOTask
             var transaction = connection.BeginTransaction();
             try
             {
-                const string sql = "DELETE FROM [dbo].[Products] WHERE Name='@name'";
+                const string sql = "DELETE FROM [dbo].[Products] WHERE Name=@name";
 
                 using var command = new SqlCommand(sql, connection);
                 command.Parameters.Add(new SqlParameter("@name", name) { SqlDbType = SqlDbType.NVarChar });

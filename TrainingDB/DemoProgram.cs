@@ -15,10 +15,10 @@ namespace ADOTask
 
                 Console.WriteLine($"Количество товаров: {shopDBClient.GetCountProducts()}");
 
-                shopDBClient.AddProduct("Порошок", 1232, "Хоз товары");
+                shopDBClient.AddProduct("Порошок авт", 1232, "Хоз товары");
                 shopDBClient.AddCategory("Алкаголь");
                 shopDBClient.UpdateProduct("Молоко", 121, "Продукты");
-                shopDBClient.DeleteProduct("Порошок");
+                shopDBClient.DeleteProduct("Порошок авт");
                 shopDBClient.PrintAllProducts();
 
                 var table = shopDBClient.GetDataTableProducts();
