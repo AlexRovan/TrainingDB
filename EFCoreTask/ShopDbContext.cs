@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EFCoreTask.Model;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,6 +10,8 @@ namespace EFCoreTask
     {
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<Customer> Customers { get; set; }
 
         public ShopDbContext()
         {
@@ -18,7 +21,9 @@ namespace EFCoreTask
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseSqlServer(@"Data Source=localhost\SQLEXPRESS;Initial Catalog=BD_Shop;Integrated Security=True");
+            options
+                .UseLazyLoadingProxies()
+                .UseSqlServer(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=BD_Shop;Integrated Security=True");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -34,7 +39,7 @@ namespace EFCoreTask
                         .IsRequired();
                 }
             );
-
+            /*
             modelBuilder.Entity<Category>().HasData(
                 new Category[]
                 {
@@ -50,6 +55,7 @@ namespace EFCoreTask
                     new Product {Id=2, Name="Макароны", Price = 120},
                     new Product {Id=3, Name="Молоко", Price = 1500}
                 });
+            */
         }
     }
 }

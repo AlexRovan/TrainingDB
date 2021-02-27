@@ -2,15 +2,15 @@
 
 namespace EFCoreTask.Model
 {
-    public class Product
+    public class Customer
     {
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string FIO { get; set; }
 
-        public decimal Price { get; set; }
+        public string Phone { get; set; }
 
-        public virtual List<Category> Categories { get; set; } = new List<Category>();
+        public string Email { get; set; }
 
         public virtual List<Order> Orders { get; set; } = new List<Order>();
     }
