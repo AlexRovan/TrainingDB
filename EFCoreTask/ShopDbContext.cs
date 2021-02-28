@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace EFCoreTask
 {
@@ -32,30 +32,183 @@ namespace EFCoreTask
 
             modelBuilder.Entity<Product>(b =>
                 {
-                    b.Property(c => c.Name)
+                    b.Property(p => p.Name)
                         .IsRequired()
                         .HasMaxLength(100);
-                    b.Property(c => c.Price)
+                    b.Property(p => p.Price)
                         .IsRequired();
                 }
             );
-            /*
-            modelBuilder.Entity<Category>().HasData(
-                new Category[]
-                {
-                    new Category {Id=1, Name="Продукты"},
-                    new Category {Id=2, Name="Хоз товары"},
-                    new Category {Id=3, Name="Товары для животных"}
-                });
 
-            modelBuilder.Entity<Product>().HasData(
-                new Product[]
+            modelBuilder.Entity<Customer>(b =>
+            {
+                b.Property(c => c.FIO)
+                    .IsRequired()
+                    .HasMaxLength(100);
+                b.Property(c => c.Phone)
+                    .IsRequired();
+                b.Property(c => c.Email)
+                    .IsRequired();
+            });
+
+            modelBuilder.Entity<Order>(b =>
+            {
+                b.Property(c => c.Date)
+                    .IsRequired();
+                b.Property(c => c.CustomerId)
+                    .IsRequired();
+            });
+        }
+
+        public static Dictionary<Customer, decimal> GetCustomersWithAllAmountSpent(ShopDbContext context)
+        {
+            IQueryable<Customer> customers = context.Customers;
+
+            return customers.AsEnumerable()
+                .GroupBy(c => c, c => c.Orders
+                .Sum(p => p.Products
+                .Sum(p => p.Price)))
+                .ToDictionary(g => g.Key, g => g.FirstOrDefault());
+        }
+
+        public static Dictionary<Category, int> GetCountProductByCategory(ShopDbContext context)
+        {
+            IQueryable<Category> categories = context.Categories;
+
+            return categories.AsEnumerable()
+                .GroupBy(c => c, c => c.Products
+                .Sum(p => p.Orders.Count))
+                .ToDictionary(g => g.Key, g => g.FirstOrDefault()); ;
+        }
+
+        public static Product GetMostPopularProduct(ShopDbContext context)
+        {
+            return context.Products.OrderByDescending(p => p.Orders.Count).FirstOrDefault();
+        }
+
+        public static bool IsExistProduct(ShopDbContext context, Product product)
+        {
+            return context.Products.Any(p => p.Name == product.Name && p.Price == product.Price);
+        }
+
+        public static void UpdateCustomer(ShopDbContext context, string fio, string email, string phone)
+        {
+            Customer customer = context.Customers.FirstOrDefault(p => p.FIO == fio);
+            if (customer != null)
+            {
+                customer.Email = email;
+                customer.Phone = phone;
+
+                context.SaveChanges();
+            }
+        }
+
+        public static void DeleteProduct(ShopDbContext context, string name)
+        {
+            Product product = context.Products.FirstOrDefault(p => p.Name == name);
+            if (product != null)
+            {
+                context.Products.Remove(product);
+
+                context.SaveChanges();
+            }
+        }
+
+        public static List<Product> GetProductsList(ShopDbContext context)
+        {
+            return context.Products.ToList();
+        }
+
+        public static List<Customer> GetCustomersList(ShopDbContext context)
+        {
+            return context.Customers.ToList();
+        }
+
+        public static Category GetCategoryFromDb(ShopDbContext context, Category category)
+        {
+            return context.Categories.Where(c => c.Name == category.Name).FirstOrDefault();
+        }
+
+        public static Customer GetCustomerFromDb(ShopDbContext context, Customer customer)
+        {
+            return context.Customers.Where(c => (c.FIO == customer.FIO && c.Email == customer.Email && c.Phone == customer.Phone)).FirstOrDefault();
+        }
+
+        public static void AddOrder(ShopDbContext context, DateTime date, Customer customer, List<Product> products)
+        {
+            foreach (var product in products)
+            {
+                if (!IsExistProduct(context, product))
                 {
-                    new Product {Id=1, Name="Мыло", Price = 150},
-                    new Product {Id=2, Name="Макароны", Price = 120},
-                    new Product {Id=3, Name="Молоко", Price = 1500}
-                });
-            */
+                    throw new ArgumentException($"Продукта {product} нет в БД. Создание заказа невозможно.", nameof(products));
+                }
+            }
+
+            var customerDb = GetCustomerFromDb(context, customer);
+
+            if (customerDb == null)
+            {
+                context.Customers.Add(customer);
+                context.SaveChanges();
+            }
+            else
+            {
+                customer = customerDb;
+            }
+
+            var order = new Order() { Date = date, Customer = customer };
+
+            context.Orders.Add(order);
+            order.Products.AddRange(products);
+
+            context.SaveChanges();
+        }
+
+        public static void AddProduct(ShopDbContext context, Product product, Category category)
+        {
+            var categoryDb = GetCategoryFromDb(context, category);
+
+            if (categoryDb == null)
+            {
+                context.Categories.Add(category);
+                context.SaveChanges();
+            }
+            else
+            {
+                category = categoryDb;
+            }
+
+            context.Products.Add(product);
+            category.Products.Add(product);
+
+            context.SaveChanges();
+        }
+
+        public static void AddTestData(ShopDbContext context)
+        {
+
+            var food = new Category() { Name = "Продукты питания" };
+            var milk = new Product() { Name = "Молоко", Price = 53 };
+            var sourCream = new Product() { Name = "Сметана", Price = 123 };
+
+            var householdGoods = new Category() { Name = "Хоз товары" };
+            var soap = new Product() { Name = "Мыло", Price = 563 };
+            var powder = new Product() { Name = "Порошок", Price = 13 };
+
+            var customer1 = new Customer() { FIO = "Иванов Иван Иванович", Email = "12341411", Phone = "1234" };
+            var customer2 = new Customer() { FIO = "Иванов Олег Иванович", Email = "12341411", Phone = "1234" };
+
+            AddProduct(context, milk, food);
+            AddProduct(context, sourCream, food);
+            AddProduct(context, soap, householdGoods);
+            AddProduct(context, powder, householdGoods);
+
+            AddOrder(context, DateTime.UtcNow, customer1, new List<Product>() { soap, powder, milk });
+            AddOrder(context, DateTime.Now, customer1, new List<Product>() { soap, sourCream, milk });
+            AddOrder(context, DateTime.Now, customer2, new List<Product>() { powder, milk });
+
+            context.SaveChanges();
         }
     }
 }
+
