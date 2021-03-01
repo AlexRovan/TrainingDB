@@ -6,7 +6,7 @@ namespace EFCoreTask.Model
     {
         public int Id { get; set; }
 
-        public string FIO { get; set; }
+        public string Fio { get; set; }
 
         public string Phone { get; set; }
 

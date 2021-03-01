@@ -23,7 +23,7 @@ namespace EFCoreTask
         {
             options
                 .UseLazyLoadingProxies()
-                .UseSqlServer(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=BD_Shop;Integrated Security=True");
+                .UseSqlServer(@"Data Source=localhost\SQLEXPRESS;Initial Catalog=BD_Shop;Integrated Security=True");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -42,7 +42,7 @@ namespace EFCoreTask
 
             modelBuilder.Entity<Customer>(b =>
             {
-                b.Property(c => c.FIO)
+                b.Property(c => c.Fio)
                     .IsRequired()
                     .HasMaxLength(100);
                 b.Property(c => c.Phone)
@@ -66,7 +66,7 @@ namespace EFCoreTask
 
             return customers.AsEnumerable()
                 .GroupBy(c => c, c => c.Orders
-                .Sum(p => p.Products
+                .Sum(o => o.Products
                 .Sum(p => p.Price)))
                 .ToDictionary(g => g.Key, g => g.FirstOrDefault());
         }
@@ -78,7 +78,7 @@ namespace EFCoreTask
             return categories.AsEnumerable()
                 .GroupBy(c => c, c => c.Products
                 .Sum(p => p.Orders.Count))
-                .ToDictionary(g => g.Key, g => g.FirstOrDefault()); ;
+                .ToDictionary(g => g.Key, g => g.FirstOrDefault());
         }
 
         public static Product GetMostPopularProduct(ShopDbContext context)
@@ -91,27 +91,32 @@ namespace EFCoreTask
             return context.Products.Any(p => p.Name == product.Name && p.Price == product.Price);
         }
 
-        public static void UpdateCustomer(ShopDbContext context, string fio, string email, string phone)
+        public static void UpdateCustomer(ShopDbContext context, Customer customer)
         {
-            Customer customer = context.Customers.FirstOrDefault(p => p.FIO == fio);
-            if (customer != null)
-            {
-                customer.Email = email;
-                customer.Phone = phone;
+            var customerDb = context.Customers.FirstOrDefault(p => p.Fio == customer.Fio);
 
-                context.SaveChanges();
+            if (customerDb == null)
+            {
+                throw new ArgumentException($"Клиента {customer.Fio} нет в БД. Редактирование невозможно.", nameof(customer));
             }
+
+            customerDb.Email = customer.Email;
+            customerDb.Phone = customer.Phone;
+
+            context.SaveChanges();
         }
 
-        public static void DeleteProduct(ShopDbContext context, string name)
+        public static void DeleteProduct(ShopDbContext context, Product product)
         {
-            Product product = context.Products.FirstOrDefault(p => p.Name == name);
-            if (product != null)
-            {
-                context.Products.Remove(product);
+            var productDb = context.Products.FirstOrDefault(p => p.Name == product.Name);
 
-                context.SaveChanges();
+            if (productDb == null)
+            {
+                throw new ArgumentException($"Продукта {product.Name} нет в БД. Удаление невозможно.", nameof(product));
             }
+
+            context.Products.Remove(productDb);
+            context.SaveChanges();
         }
 
         public static List<Product> GetProductsList(ShopDbContext context)
@@ -126,23 +131,19 @@ namespace EFCoreTask
 
         public static Category GetCategoryFromDb(ShopDbContext context, Category category)
         {
-            return context.Categories.Where(c => c.Name == category.Name).FirstOrDefault();
+            return context.Categories.FirstOrDefault(c => c.Name == category.Name);
         }
 
         public static Customer GetCustomerFromDb(ShopDbContext context, Customer customer)
         {
-            return context.Customers.Where(c => (c.FIO == customer.FIO && c.Email == customer.Email && c.Phone == customer.Phone)).FirstOrDefault();
+            return context.Customers.FirstOrDefault(c => (c.Fio == customer.Fio && c.Email == customer.Email && c.Phone == customer.Phone));
         }
 
         public static void AddOrder(ShopDbContext context, DateTime date, Customer customer, List<Product> products)
         {
-            foreach (var product in products)
-            {
-                if (!IsExistProduct(context, product))
-                {
-                    throw new ArgumentException($"Продукта {product} нет в БД. Создание заказа невозможно.", nameof(products));
-                }
-            }
+            products.Where(p => IsExistProduct(context, p) == false)
+                .ToList()
+                .ForEach(p => throw new ArgumentException($"Продукта {p.Name} нет в БД. Создание заказа невозможно.", nameof(products)));
 
             var customerDb = GetCustomerFromDb(context, customer);
 
@@ -195,8 +196,8 @@ namespace EFCoreTask
             var soap = new Product() { Name = "Мыло", Price = 563 };
             var powder = new Product() { Name = "Порошок", Price = 13 };
 
-            var customer1 = new Customer() { FIO = "Иванов Иван Иванович", Email = "12341411", Phone = "1234" };
-            var customer2 = new Customer() { FIO = "Иванов Олег Иванович", Email = "12341411", Phone = "1234" };
+            var customer1 = new Customer() { Fio = "Иванов Иван Иванович", Email = "12341411", Phone = "1234" };
+            var customer2 = new Customer() { Fio = "Иванов Олег Иванович", Email = "12341411", Phone = "1234" };
 
             AddProduct(context, milk, food);
             AddProduct(context, sourCream, food);
