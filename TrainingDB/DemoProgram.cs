@@ -4,26 +4,26 @@ using System.Data;
 namespace ADOTask
 {
     internal class DemoProgram
-    { 
+    {
         private static void Main()
         {
             const string connectionString = @"Data Source=localhost\SQLEXPRESS;Initial Catalog=BD_Shop;Integrated Security=True";
 
             try
             {
-                var shopDBClient = new ShopDBClient(connectionString);
+                var shopDbClient = new ShopDbClient(connectionString);
 
-                Console.WriteLine($"Количество товаров: {shopDBClient.GetCountProducts()}");
+                Console.WriteLine($"Количество товаров: {shopDbClient.GetCountProducts()}");
 
-                shopDBClient.AddProduct("Порошок авт", 1232, "Хоз товары");
-                shopDBClient.AddCategory("Алкаголь");
-                shopDBClient.UpdateProduct("Молоко", 121, "Продукты");
-                shopDBClient.DeleteProduct("Порошок авт");
-                shopDBClient.PrintAllProducts();
+                shopDbClient.AddProduct("Порошок авт", 1232, "Хоз товары");
+                shopDbClient.AddCategory("Алкаголь");
+                shopDbClient.UpdateProduct("Молоко", 121, "Продукты");
+                shopDbClient.DeleteProduct("Порошок авт");
+                shopDbClient.PrintAllProducts();
 
-                var table = shopDBClient.GetDataTableProducts();
-                
-                foreach ( DataRow row in table.Rows)
+                var table = shopDbClient.GetDataTableProducts();
+
+                foreach (DataRow row in table.Rows)
                 {
                     Console.WriteLine($"{row[0]} {row[1]} {row[2]}");
                 }

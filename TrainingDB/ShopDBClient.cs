@@ -4,18 +4,18 @@ using Microsoft.Data.SqlClient;
 
 namespace ADOTask
 {
-    class ShopDBClient
+    internal class ShopDbClient
     {
-        readonly string connectionString;
+        private readonly string _connectionString;
 
-        public ShopDBClient(string connectionString)
+        public ShopDbClient(string connectionString)
         {
-            this.connectionString = connectionString;
+            _connectionString = connectionString ?? throw new ArgumentNullException("Не передана строка подключения к БД", nameof(connectionString));
         }
 
         public int GetCountProducts()
         {
-            using var connection = new SqlConnection(connectionString);
+            using var connection = new SqlConnection(_connectionString);
 
             connection.Open();
             const string sql = "SELECT COUNT(*) FROM dbo.Products";
@@ -24,11 +24,11 @@ namespace ADOTask
             return (int)command.ExecuteScalar();
         }
 
-        private int GetIdCategory(string category)
+        private int GetCategoryId(string category)
         {
-            using var connection = new SqlConnection(connectionString);
+            using var connection = new SqlConnection(_connectionString);
             connection.Open();
-            const string sql = "SELECT Id FROM dbo.Categories WHERE Name=@category";
+            const string sql = "SELECT Id FROM dbo.Categories WHERE Name = @category";
 
             using var command = new SqlCommand(sql, connection);
             command.Parameters.Add(new SqlParameter("@category", category) { SqlDbType = SqlDbType.NVarChar });
@@ -38,7 +38,7 @@ namespace ADOTask
 
         public void AddCategory(string name)
         {
-            using var connection = new SqlConnection(connectionString);
+            using var connection = new SqlConnection(_connectionString);
 
             connection.Open();
 
@@ -48,7 +48,7 @@ namespace ADOTask
                 const string sql = "INSERT INTO dbo.Categories ([Name]) VALUES (@name)";
 
                 using var command = new SqlCommand(sql, connection);
-                command.Parameters.Add(new SqlParameter("@name", name) {SqlDbType = SqlDbType.NVarChar});
+                command.Parameters.Add(new SqlParameter("@name", name) { SqlDbType = SqlDbType.NVarChar });
                 command.Transaction = transaction;
 
                 command.ExecuteNonQuery();
@@ -63,20 +63,20 @@ namespace ADOTask
 
         public void AddProduct(string name, decimal price, string category)
         {
-            using var connection = new SqlConnection(connectionString);
+            using var connection = new SqlConnection(_connectionString);
             connection.Open();
 
             var transaction = connection.BeginTransaction();
             try
             {
-                var categoryId = GetIdCategory(category);
+                var categoryId = GetCategoryId(category);
 
                 if (categoryId == -1)
                 {
                     throw new ArgumentException($"Неизвестная категория {category}", nameof(category));
                 }
 
-                const string sql = "INSERT INTO dbo.Products ([Name],[Price],[Category_id]) VALUES (@name, @price, @categoryId)";
+                const string sql = "INSERT INTO dbo.Products ([Name], [Price], [Category_id]) VALUES (@name, @price, @categoryId)";
 
                 using var command = new SqlCommand(sql, connection);
                 command.Parameters.Add(new SqlParameter("@name", name) { SqlDbType = SqlDbType.NVarChar });
@@ -96,15 +96,15 @@ namespace ADOTask
 
         public void UpdateProduct(string name, decimal price, string category)
         {
-            CheckExistProduct(name);
+            CheckProductExists(name);
 
-            using var connection = new SqlConnection(connectionString);
+            using var connection = new SqlConnection(_connectionString);
             connection.Open();
 
             var transaction = connection.BeginTransaction();
             try
             {
-                var categoryId = GetIdCategory(category);
+                var categoryId = GetCategoryId(category);
 
                 if (categoryId == -1)
                 {
@@ -131,15 +131,15 @@ namespace ADOTask
 
         public void DeleteProduct(string name)
         {
-            CheckExistProduct(name);
+            CheckProductExists(name);
 
-            using var connection = new SqlConnection(connectionString);
+            using var connection = new SqlConnection(_connectionString);
 
             connection.Open();
             var transaction = connection.BeginTransaction();
             try
             {
-                const string sql = "DELETE FROM [dbo].[Products] WHERE Name=@name";
+                const string sql = "DELETE FROM [dbo].[Products] WHERE Name = @name";
 
                 using var command = new SqlCommand(sql, connection);
                 command.Parameters.Add(new SqlParameter("@name", name) { SqlDbType = SqlDbType.NVarChar });
@@ -157,10 +157,15 @@ namespace ADOTask
 
         public void PrintAllProducts()
         {
-            using var connection = new SqlConnection(connectionString);
+            using var connection = new SqlConnection(_connectionString);
 
             connection.Open();
-            const string sql = "SELECT p.[Name], p.[Price] ,c.[Name] Category FROM [BD_Shop].[dbo].[Products] p, [BD_Shop].[dbo].Categories c WHERE p.Category_id = c.Id";
+            const string sql = "SELECT p.[Name], " +
+                               "p.[Price], " +
+                               "c.[Name] Category " +
+                               "FROM [BD_Shop].[dbo].[Products] p, " +
+                               "[BD_Shop].[dbo].Categories c " +
+                               "WHERE p.Category_id = c.Id";
 
             using var command = new SqlCommand(sql, connection);
             using var reader = command.ExecuteReader();
@@ -173,10 +178,15 @@ namespace ADOTask
 
         public DataTable GetDataTableProducts()
         {
-            using var connection = new SqlConnection(connectionString);
+            using var connection = new SqlConnection(_connectionString);
 
             connection.Open();
-            const string sql = "SELECT p.[Name], p.[Price] ,c.[Name] Category FROM [BD_Shop].[dbo].[Products] p, [BD_Shop].[dbo].Categories c WHERE p.Category_id = c.Id";
+            const string sql = "SELECT p.[Name], " +
+                               "p.[Price], " +
+                               "c.[Name] Category " +
+                               "FROM [BD_Shop].[dbo].[Products] p, " +
+                               "[BD_Shop].[dbo].Categories c " +
+                               "WHERE p.Category_id = c.Id";
 
             var adapter = new SqlDataAdapter(sql, connection);
 
@@ -186,9 +196,9 @@ namespace ADOTask
             return dataSet.Tables[0];
         }
 
-        private void CheckExistProduct(string name)
+        private void CheckProductExists(string name)
         {
-            using var connection = new SqlConnection(connectionString);
+            using var connection = new SqlConnection(_connectionString);
 
             connection.Open();
             var sql = $"SELECT COUNT(*) FROM dbo.Products WHERE Name=@name";
@@ -201,6 +211,5 @@ namespace ADOTask
                 throw new ArgumentException($"Продукт с именем {name} отсуствует в таблице.", nameof(name));
             }
         }
-
     }
 }

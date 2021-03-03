@@ -5,7 +5,12 @@ VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ADOTask", "TrainingDB\ADOTask.csproj", "{A89B0380-2A09-42A7-AD96-B2D73544DF6D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFCoreTask", "EFCoreTask\EFCoreTask.csproj", "{5A0D622C-39B4-4261-BD01-978DC629B797}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCoreTask", "EFCoreTask\EFCoreTask.csproj", "{5A0D622C-39B4-4261-BD01-978DC629B797}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2C1AFCC7-1F10-4125-BB78-60DA16CF8731}"
+	ProjectSection(SolutionItems) = preProject
+		Scripts\Create_DB.sql = Scripts\Create_DB.sql
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
