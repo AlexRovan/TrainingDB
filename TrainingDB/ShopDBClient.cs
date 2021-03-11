@@ -76,7 +76,7 @@ namespace ADOTask
                     throw new ArgumentException($"Неизвестная категория {category}", nameof(category));
                 }
 
-                const string sql = "INSERT INTO dbo.Products ([Name], [Price], [Category_id]) VALUES (@name, @price, @categoryId)";
+                const string sql = "INSERT INTO dbo.Products ([Name], [Price], [CategoryId]) VALUES (@name, @price, @categoryId)";
 
                 using var command = new SqlCommand(sql, connection);
                 command.Parameters.Add(new SqlParameter("@name", name) { SqlDbType = SqlDbType.NVarChar });
@@ -111,7 +111,7 @@ namespace ADOTask
                     throw new ArgumentException($"Неизвестная категория {category}", nameof(category));
                 }
 
-                const string sql = "UPDATE [dbo].[Products] SET [Price] = @price,[Category_id] = @categoryId WHERE [Name] = @name";
+                const string sql = "UPDATE [dbo].[Products] SET [Price] = @price,[CategoryId] = @categoryId WHERE [Name] = @name";
 
                 using var command = new SqlCommand(sql, connection);
                 command.Parameters.Add(new SqlParameter("@name", name) { SqlDbType = SqlDbType.NVarChar });
@@ -163,9 +163,9 @@ namespace ADOTask
             const string sql = "SELECT p.[Name], " +
                                "p.[Price], " +
                                "c.[Name] Category " +
-                               "FROM [BD_Shop].[dbo].[Products] p, " +
+                               "FROM [BD_Shop].[dbo].[Products] p JOIN" +
                                "[BD_Shop].[dbo].Categories c " +
-                               "WHERE p.Category_id = c.Id";
+                               "ON p.CategoryId = c.Id";
 
             using var command = new SqlCommand(sql, connection);
             using var reader = command.ExecuteReader();
@@ -184,9 +184,9 @@ namespace ADOTask
             const string sql = "SELECT p.[Name], " +
                                "p.[Price], " +
                                "c.[Name] Category " +
-                               "FROM [BD_Shop].[dbo].[Products] p, " +
+                               "FROM [BD_Shop].[dbo].[Products] p JOIN" +
                                "[BD_Shop].[dbo].Categories c " +
-                               "WHERE p.Category_id = c.Id";
+                               "ON p.CategoryId = c.Id";
 
             var adapter = new SqlDataAdapter(sql, connection);
 
@@ -201,7 +201,7 @@ namespace ADOTask
             using var connection = new SqlConnection(_connectionString);
 
             connection.Open();
-            var sql = $"SELECT COUNT(*) FROM dbo.Products WHERE Name=@name";
+            var sql = "SELECT COUNT(*) FROM dbo.Products WHERE Name=@name";
 
             using var command = new SqlCommand(sql, connection);
             command.Parameters.Add(new SqlParameter("@name", name) { SqlDbType = SqlDbType.NVarChar });
