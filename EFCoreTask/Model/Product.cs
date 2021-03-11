@@ -12,6 +12,6 @@ namespace EFCoreTask.Model
 
         public virtual List<Category> Categories { get; set; } = new List<Category>();
 
-        public virtual List<Order> Orders { get; set; } = new List<Order>();
+        public virtual List<PositionOrder> PositionOrder { get; set; } = new List<PositionOrder>();
     }
 }

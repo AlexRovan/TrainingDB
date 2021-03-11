@@ -1,4 +1,5 @@
 ﻿using System;
+using EFCoreTask.DataAccess;
 using EFCoreTask.Model;
 
 namespace EFCoreTask
@@ -11,39 +12,42 @@ namespace EFCoreTask
             {
                 using var db = new ShopDbContext();
 
-                ShopDbContext.AddTestData(db);
+                db.Database.EnsureDeleted();
+                db.Database.EnsureCreated();
 
-                var mostPopularProduct = ShopDbContext.GetMostPopularProduct(db);
-                Console.WriteLine($"Самый популярный продукт: {mostPopularProduct.Name}, кол-во заказов: {mostPopularProduct.Orders.Count}");
+                ShopDbClient.AddTestData(db);
 
-                var customersWithAllAmountSpent = ShopDbContext.GetCustomersWithAllAmountSpent(db);
+                var mostPopularProduct = ShopDbClient.GetMostPopularProduct(db);
+                Console.WriteLine($"Самый популярный продукт: {mostPopularProduct.Key.Name}, кол-во заказов: {mostPopularProduct.Value}");
+
+                var customersWithAllAmountSpent = ShopDbClient.GetCustomersWithAllAmountSpent(db);
                 foreach (var (customer, price) in customersWithAllAmountSpent)
                 {
-                    Console.WriteLine($"{customer.Fio} оформил заказов на сумму: {price}");
+                    Console.WriteLine($"{customer.FirstName} {customer.MiddleName} {customer.LastName} оформил заказов на сумму: {price}");
                 }
 
-                var categoriesWithProductCount = ShopDbContext.GetCountProductByCategory(db);
+                var categoriesWithProductCount = ShopDbClient.GetProductsCountByCategory(db);
                 foreach (var (category, count) in categoriesWithProductCount)
                 {
                     Console.WriteLine($"{category.Name} продано: {count}");
                 }
 
-                var customerForUpdate = new Customer() { Fio = "Иванов Олег Иванович", Email = "new_email@mail.ru", Phone = "+7955123548" };
-                ShopDbContext.UpdateCustomer(db, customerForUpdate);
+                var customerForUpdate = new Customer { FirstName = "Олег", MiddleName = "Иванович", LastName = "Иванов", Email = "new_email@mail.ru", Phone = "+7955123548" };
+                ShopDbClient.UpdateCustomer(db, customerForUpdate);
 
                 var powder = new Product() { Name = "Порошок", Price = 13 };
-                ShopDbContext.DeleteProduct(db, powder);
+                ShopDbClient.DeleteProduct(db, powder);
 
                 Console.WriteLine("Список продуктов:");
-                foreach (var product in ShopDbContext.GetProductsList(db))
+                foreach (var product in ShopDbClient.GetProductsList(db))
                 {
                     Console.WriteLine($"{product.Name}");
                 }
 
                 Console.WriteLine("Список покупателей:");
-                foreach (var customer in ShopDbContext.GetCustomersList(db))
+                foreach (var customer in ShopDbClient.GetCustomersList(db))
                 {
-                    Console.WriteLine($"{customer.Fio} {customer.Email} {customer.Phone}");
+                    Console.WriteLine($"{customer.FirstName} {customer.MiddleName} {customer.LastName} {customer.Email} {customer.Phone}");
                 }
             }
             catch (Exception e)

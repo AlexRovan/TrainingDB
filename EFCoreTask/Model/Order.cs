@@ -13,6 +13,8 @@ namespace EFCoreTask.Model
 
         public virtual Customer Customer { get; set; }
 
-        public virtual List<Product> Products { get; set; } = new List<Product>();
+        public virtual List<PositionOrder> PositionOrder { get; set; } = new List<PositionOrder>();
+
+
     }
 }
