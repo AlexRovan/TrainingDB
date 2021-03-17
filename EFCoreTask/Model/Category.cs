@@ -8,6 +8,6 @@ namespace EFCoreTask.Model
 
         public string Name { get; set; }
 
-        public virtual List<Product> Products { get; set; } = new List<Product>();
+        public virtual List<CategoryProduct> CategoryProduct { get; set; } = new List<CategoryProduct>();
     }
 }

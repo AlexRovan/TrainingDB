@@ -10,7 +10,7 @@ namespace EFCoreTask.Model
 
         public decimal Price { get; set; }
 
-        public virtual List<Category> Categories { get; set; } = new List<Category>();
+        public virtual List<CategoryProduct> CategoryProduct { get; set; } = new List<CategoryProduct>();
 
         public virtual List<PositionOrder> PositionOrder { get; set; } = new List<PositionOrder>();
     }

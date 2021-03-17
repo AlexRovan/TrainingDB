@@ -9,27 +9,47 @@ namespace EFCoreTask.DataAccess
     {
         public static Dictionary<Customer, decimal> GetCustomersWithAllAmountSpent(ShopDbContext context)
         {
-            var customers = context.Customers;
-
-            return customers.AsEnumerable()
-                .GroupBy(c => c, c => c.Orders.Sum(o => o.PositionOrder.Sum(p => p.ProductCount * p.Product.Price)))
-                .ToDictionary(g => g.Key, g => g.FirstOrDefault());
+            var result = from customers in context.Customers
+                         join orders in context.Orders on customers.Id equals orders.CustomerId
+                         join positionOrder in context.PositionOrder on orders.Id equals positionOrder.Id
+                         join products in context.Products on positionOrder.ProductId equals products.Id
+                         select new
+                         {
+                             Customer = customers,
+                             Price = products.Price * positionOrder.ProductCount
+                         };
+           
+            return result.AsEnumerable().GroupBy(c => c.Customer).ToDictionary(g => g.Key, g => g.Sum(p => p.Price));
         }
 
         public static Dictionary<Category, int> GetProductsCountByCategory(ShopDbContext context)
         {
-            var categories = context.Categories;
+            var categoriess = context.Categories;
 
-            return categories.AsEnumerable().GroupBy(c => c, c => c.Products.Sum(p => p.PositionOrder.Count))
-                .ToDictionary(g => g.Key, g => g.FirstOrDefault());
+
+            var result = from categories in context.Categories
+                         select new
+                         {
+                             Category = categories,
+                             Count = categories.CategoryProduct.Select(p => p.Product.PositionOrder.Sum(p => p.ProductCount))
+                         };
+
+            return result.ToDictionary(g => g.Category, g=> g.Count.Sum());
         }
 
         public static KeyValuePair<Product, int> GetMostPopularProduct(ShopDbContext context)
         {
-            var products = context.Products;
+            var productss = context.Products;
 
-            return products.AsEnumerable().GroupBy(p => p, c => c.PositionOrder.Sum(p => p.ProductCount))
-              .ToDictionary(g => g.Key, g => g.FirstOrDefault()).OrderByDescending(g => g.Value).FirstOrDefault();
+            var result = from products in context.Products
+                         join positionOrder in context.PositionOrder on products.Id equals positionOrder.ProductId
+                         select new
+                         {
+                             Product = products,
+                             Count = positionOrder.ProductCount
+                         };
+
+            return result.AsEnumerable().GroupBy(c => c.Product).ToDictionary(g => g.Key, g => g.Sum(p => p.Count)).OrderByDescending(g => g.Value).FirstOrDefault();      
         }
 
         public static bool IsExistProduct(ShopDbContext context, Product product)
@@ -132,7 +152,7 @@ namespace EFCoreTask.DataAccess
             }
 
             context.Products.Add(product);
-            category.Products.Add(product);
+            category.CategoryProduct.Add(new CategoryProduct { Product=product });
 
             context.SaveChanges();
         }
@@ -157,7 +177,7 @@ namespace EFCoreTask.DataAccess
 
             AddOrder(context, DateTime.UtcNow, customer1, new List<PositionOrder> {
                 new PositionOrder{Product=soap, ProductCount=1 },
-                new PositionOrder{Product=powder, ProductCount=12 },
+                new PositionOrder{Product=powder, ProductCount=1 },
                 new PositionOrder{Product=milk, ProductCount=2 }
             });
 

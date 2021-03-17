@@ -14,7 +14,5 @@ namespace EFCoreTask.Model
         public virtual Customer Customer { get; set; }
 
         public virtual List<PositionOrder> PositionOrder { get; set; } = new List<PositionOrder>();
-
-
     }
 }

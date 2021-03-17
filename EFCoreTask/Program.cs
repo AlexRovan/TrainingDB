@@ -1,6 +1,7 @@
 ﻿using System;
 using EFCoreTask.DataAccess;
 using EFCoreTask.Model;
+using Microsoft.EntityFrameworkCore;
 
 namespace EFCoreTask
 {
@@ -12,10 +13,7 @@ namespace EFCoreTask
             {
                 using var db = new ShopDbContext();
 
-                db.Database.EnsureDeleted();
-                db.Database.EnsureCreated();
-
-                ShopDbClient.AddTestData(db);
+                db.Database.Migrate();
 
                 var mostPopularProduct = ShopDbClient.GetMostPopularProduct(db);
                 Console.WriteLine($"Самый популярный продукт: {mostPopularProduct.Key.Name}, кол-во заказов: {mostPopularProduct.Value}");

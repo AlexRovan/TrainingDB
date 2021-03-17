@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace EFCoreTask.Model
 {
@@ -15,6 +16,8 @@ namespace EFCoreTask.Model
         public string Phone { get; set; }
 
         public string Email { get; set; }
+
+        public DateTime? DateBirth { get; set; }
 
         public virtual List<Order> Orders { get; set; } = new List<Order>();
     }
