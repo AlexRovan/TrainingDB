@@ -9,47 +9,30 @@ namespace EFCoreTask.DataAccess
     {
         public static Dictionary<Customer, decimal> GetCustomersWithAllAmountSpent(ShopDbContext context)
         {
-            var result = from customers in context.Customers
-                         join orders in context.Orders on customers.Id equals orders.CustomerId
-                         join positionOrder in context.PositionOrder on orders.Id equals positionOrder.Id
-                         join products in context.Products on positionOrder.ProductId equals products.Id
-                         select new
-                         {
-                             Customer = customers,
-                             Price = products.Price * positionOrder.ProductCount
-                         };
-           
-            return result.AsEnumerable().GroupBy(c => c.Customer).ToDictionary(g => g.Key, g => g.Sum(p => p.Price));
+            return context.Customers.Select(c => new
+            {
+                Customer = c,
+                Price = c.Orders.Select(o => o.PositionOrder.Sum(po => po.ProductCount * po.Product.Price))
+            }).ToDictionary(g => g.Customer, g => g.Price.Sum());
         }
 
         public static Dictionary<Category, int> GetProductsCountByCategory(ShopDbContext context)
         {
-            var categoriess = context.Categories;
-
-
-            var result = from categories in context.Categories
-                         select new
-                         {
-                             Category = categories,
-                             Count = categories.CategoryProduct.Select(p => p.Product.PositionOrder.Sum(p => p.ProductCount))
-                         };
-
-            return result.ToDictionary(g => g.Category, g=> g.Count.Sum());
+            return context.Categories
+                .Select(c => new
+                {
+                    Category = c,
+                    Count = c.CategoryProduct.Select(p => p.Product.PositionOrder.Sum(p => p.ProductCount))
+                }).ToDictionary(g => g.Category, g => g.Count.Sum());
         }
 
-        public static KeyValuePair<Product, int> GetMostPopularProduct(ShopDbContext context)
+        public static Product GetMostPopularProduct(ShopDbContext context)
         {
-            var productss = context.Products;
-
-            var result = from products in context.Products
-                         join positionOrder in context.PositionOrder on products.Id equals positionOrder.ProductId
-                         select new
-                         {
-                             Product = products,
-                             Count = positionOrder.ProductCount
-                         };
-
-            return result.AsEnumerable().GroupBy(c => c.Product).ToDictionary(g => g.Key, g => g.Sum(p => p.Count)).OrderByDescending(g => g.Value).FirstOrDefault();      
+            return context.Products.Select(p => new
+            {
+                Product = p,
+                Count = p.PositionOrder.Sum(po => po.ProductCount)
+            }).OrderByDescending(g => g.Count).FirstOrDefault().Product;
         }
 
         public static bool IsExistProduct(ShopDbContext context, Product product)
@@ -111,7 +94,7 @@ namespace EFCoreTask.DataAccess
                 c.Phone == customer.Phone);
         }
 
-        public static void AddOrder(ShopDbContext context, DateTime date, Customer customer, List<PositionOrder> products)
+        public static void AddOrder(ShopDbContext context, DateTime date, Customer customer, List<PositionsOrder> products)
         {
             products.Where(p => !IsExistProduct(context, p.Product))
                 .ToList()
@@ -122,14 +105,13 @@ namespace EFCoreTask.DataAccess
             if (customerDb == null)
             {
                 context.Customers.Add(customer);
-                context.SaveChanges();
             }
             else
             {
                 customer = customerDb;
             }
 
-            var order = new Order() { Date = date, Customer = customer };
+            var order = new Order { Date = date, Customer = customer };
 
             context.Orders.Add(order);
             order.PositionOrder.AddRange(products);
@@ -143,8 +125,7 @@ namespace EFCoreTask.DataAccess
 
             if (categoryDb == null)
             {
-                context.Categories.Add(category);
-                context.SaveChanges();
+                context.Categories.Add(category);             
             }
             else
             {
@@ -152,7 +133,7 @@ namespace EFCoreTask.DataAccess
             }
 
             context.Products.Add(product);
-            category.CategoryProduct.Add(new CategoryProduct { Product=product });
+            category.CategoryProduct.Add(new CategoryProducts { Product = product });
 
             context.SaveChanges();
         }
@@ -175,21 +156,21 @@ namespace EFCoreTask.DataAccess
             AddProduct(context, soap, householdGoods);
             AddProduct(context, powder, householdGoods);
 
-            AddOrder(context, DateTime.UtcNow, customer1, new List<PositionOrder> {
-                new PositionOrder{Product=soap, ProductCount=1 },
-                new PositionOrder{Product=powder, ProductCount=1 },
-                new PositionOrder{Product=milk, ProductCount=2 }
+            AddOrder(context, DateTime.UtcNow, customer1, new List<PositionsOrder> {
+                new PositionsOrder{Product=soap, ProductCount=1 },
+                new PositionsOrder{Product=powder, ProductCount=1 },
+                new PositionsOrder{Product=milk, ProductCount=2 }
             });
 
-            AddOrder(context, DateTime.UtcNow, customer1, new List<PositionOrder> {
-                new PositionOrder{Product=soap, ProductCount=1 },
-                new PositionOrder{Product=sourCream, ProductCount=1 },
-                new PositionOrder{Product=milk, ProductCount=1 }
+            AddOrder(context, DateTime.UtcNow, customer1, new List<PositionsOrder> {
+                new PositionsOrder{Product=soap, ProductCount=1 },
+                new PositionsOrder{Product=sourCream, ProductCount=1 },
+                new PositionsOrder{Product=milk, ProductCount=1 }
             });
 
-            AddOrder(context, DateTime.UtcNow, customer2, new List<PositionOrder> {
-                new PositionOrder{Product=powder, ProductCount=1 },
-                new PositionOrder{Product=milk, ProductCount=1 }
+            AddOrder(context, DateTime.UtcNow, customer2, new List<PositionsOrder> {
+                new PositionsOrder{Product=powder, ProductCount=1 },
+                new PositionsOrder{Product=milk, ProductCount=1 }
             });
 
             context.SaveChanges();

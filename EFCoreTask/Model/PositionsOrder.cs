@@ -1,15 +1,17 @@
 ﻿namespace EFCoreTask.Model
 {
-    public class CategoryProduct
+    public class PositionsOrder
     {
         public int Id { get; set; }
+
+        public int OrderId { get; set; }
+
+        public virtual Order Order{ get; set; }
 
         public int ProductId { get; set; }
 
         public virtual Product Product { get; set; }
 
-        public int CategoryId { get; set; }
-
-        public virtual Category Category { get; set; }
+        public int ProductCount { get; set; }
     }
 }

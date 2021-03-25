@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EFCoreTask.Migrations
 {
     [DbContext(typeof(ShopDbContext))]
-    [Migration("20210317151211_AddColumnDateBirth")]
-    partial class AddColumnDateBirth
+    [Migration("20210325145128_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -29,6 +29,7 @@ namespace EFCoreTask.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -37,7 +38,7 @@ namespace EFCoreTask.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("EFCoreTask.Model.CategoryProduct", b =>
+            modelBuilder.Entity("EFCoreTask.Model.CategoryProducts", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -56,7 +57,7 @@ namespace EFCoreTask.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("CategoryProduct");
+                    b.ToTable("CategoryProducts");
                 });
 
             modelBuilder.Entity("EFCoreTask.Model.Customer", b =>
@@ -77,6 +78,7 @@ namespace EFCoreTask.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("LastName")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -112,7 +114,7 @@ namespace EFCoreTask.Migrations
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("EFCoreTask.Model.PositionOrder", b =>
+            modelBuilder.Entity("EFCoreTask.Model.PositionsOrder", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -134,7 +136,7 @@ namespace EFCoreTask.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("PositionOrder");
+                    b.ToTable("PositionsOrder");
                 });
 
             modelBuilder.Entity("EFCoreTask.Model.Product", b =>
@@ -145,6 +147,7 @@ namespace EFCoreTask.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -156,7 +159,7 @@ namespace EFCoreTask.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("EFCoreTask.Model.CategoryProduct", b =>
+            modelBuilder.Entity("EFCoreTask.Model.CategoryProducts", b =>
                 {
                     b.HasOne("EFCoreTask.Model.Category", "Category")
                         .WithMany("CategoryProduct")
@@ -186,7 +189,7 @@ namespace EFCoreTask.Migrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("EFCoreTask.Model.PositionOrder", b =>
+            modelBuilder.Entity("EFCoreTask.Model.PositionsOrder", b =>
                 {
                     b.HasOne("EFCoreTask.Model.Order", "Order")
                         .WithMany("PositionOrder")

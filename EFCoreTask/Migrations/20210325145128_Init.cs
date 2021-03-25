@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace EFCoreTask.Migrations
 {
-    public partial class InitialMigration : Migration
+    public partial class Init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,7 +13,7 @@ namespace EFCoreTask.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true)
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -28,9 +28,10 @@ namespace EFCoreTask.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     MiddleName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DateBirth = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -43,7 +44,7 @@ namespace EFCoreTask.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
@@ -72,7 +73,7 @@ namespace EFCoreTask.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CategoryProduct",
+                name: "CategoryProducts",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -82,15 +83,15 @@ namespace EFCoreTask.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CategoryProduct", x => x.Id);
+                    table.PrimaryKey("PK_CategoryProducts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CategoryProduct_Categories_CategoryId",
+                        name: "FK_CategoryProducts_Categories_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CategoryProduct_Products_ProductId",
+                        name: "FK_CategoryProducts_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
                         principalColumn: "Id",
@@ -98,7 +99,7 @@ namespace EFCoreTask.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PositionOrder",
+                name: "PositionsOrder",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -109,15 +110,15 @@ namespace EFCoreTask.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PositionOrder", x => x.Id);
+                    table.PrimaryKey("PK_PositionsOrder", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_PositionOrder_Orders_OrderId",
+                        name: "FK_PositionsOrder_Orders_OrderId",
                         column: x => x.OrderId,
                         principalTable: "Orders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_PositionOrder_Products_ProductId",
+                        name: "FK_PositionsOrder_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
                         principalColumn: "Id",
@@ -125,13 +126,13 @@ namespace EFCoreTask.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_CategoryProduct_CategoryId",
-                table: "CategoryProduct",
+                name: "IX_CategoryProducts_CategoryId",
+                table: "CategoryProducts",
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CategoryProduct_ProductId",
-                table: "CategoryProduct",
+                name: "IX_CategoryProducts_ProductId",
+                table: "CategoryProducts",
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
@@ -140,23 +141,23 @@ namespace EFCoreTask.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PositionOrder_OrderId",
-                table: "PositionOrder",
+                name: "IX_PositionsOrder_OrderId",
+                table: "PositionsOrder",
                 column: "OrderId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PositionOrder_ProductId",
-                table: "PositionOrder",
+                name: "IX_PositionsOrder_ProductId",
+                table: "PositionsOrder",
                 column: "ProductId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "CategoryProduct");
+                name: "CategoryProducts");
 
             migrationBuilder.DropTable(
-                name: "PositionOrder");
+                name: "PositionsOrder");
 
             migrationBuilder.DropTable(
                 name: "Categories");

@@ -16,7 +16,7 @@ namespace EFCoreTask
                 db.Database.Migrate();
 
                 var mostPopularProduct = ShopDbClient.GetMostPopularProduct(db);
-                Console.WriteLine($"Самый популярный продукт: {mostPopularProduct.Key.Name}, кол-во заказов: {mostPopularProduct.Value}");
+                Console.WriteLine($"Самый популярный продукт: {mostPopularProduct.Name}");
 
                 var customersWithAllAmountSpent = ShopDbClient.GetCustomersWithAllAmountSpent(db);
                 foreach (var (customer, price) in customersWithAllAmountSpent)
@@ -33,7 +33,7 @@ namespace EFCoreTask
                 var customerForUpdate = new Customer { FirstName = "Олег", MiddleName = "Иванович", LastName = "Иванов", Email = "new_email@mail.ru", Phone = "+7955123548" };
                 ShopDbClient.UpdateCustomer(db, customerForUpdate);
 
-                var powder = new Product() { Name = "Порошок", Price = 13 };
+                var powder = new Product { Name = "Порошок", Price = 13 };
                 ShopDbClient.DeleteProduct(db, powder);
 
                 Console.WriteLine("Список продуктов:");
