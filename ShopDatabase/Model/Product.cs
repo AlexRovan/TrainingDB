@@ -10,8 +10,8 @@ namespace ShopDatabase.Model
 
         public decimal Price { get; set; }
 
-        public virtual List<CategoryProduct> CategoryProduct { get; set; } = new List<CategoryProduct>();
+        public virtual List<CategoryProducts> CategoryProduct { get; set; } = new List<CategoryProducts>();
 
-        public virtual List<PositionOrder> PositionOrder { get; set; } = new List<PositionOrder>();
+        public virtual List<PositionsOrder> PositionOrder { get; set; } = new List<PositionsOrder>();
     }
 }

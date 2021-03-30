@@ -8,6 +8,6 @@ namespace ShopDatabase.Model
 
         public string Name { get; set; }
 
-        public virtual List<CategoryProduct> CategoryProduct { get; set; } = new List<CategoryProduct>();
+        public virtual List<CategoryProducts> CategoryProduct { get; set; } = new List<CategoryProducts>();
     }
 }

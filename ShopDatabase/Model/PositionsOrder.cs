@@ -1,6 +1,6 @@
 ﻿namespace ShopDatabase.Model
 {
-    public class PositionOrder
+    public class PositionsOrder
     {
         public int Id { get; set; }
 
@@ -13,6 +13,5 @@
         public virtual Product Product { get; set; }
 
         public int ProductCount { get; set; }
-
     }
 }

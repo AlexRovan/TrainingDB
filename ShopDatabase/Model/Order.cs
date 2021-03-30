@@ -13,6 +13,6 @@ namespace ShopDatabase.Model
 
         public virtual Customer Customer { get; set; }
 
-        public virtual List<PositionOrder> PositionOrder { get; set; } = new List<PositionOrder>();
+        public virtual List<PositionsOrder> PositionOrder { get; set; } = new List<PositionsOrder>();
     }
 }

@@ -1,23 +1,51 @@
-﻿using ShopDatabase.Repositories;
+﻿using ShopDatabase.Model;
 using System;
 
 namespace ShopDatabase
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            using (var uow = new UnitOfWork(new ShopDbContext()))
+            try
             {
-                var productRepo = uow.GetRepository<IProductRepository>();
+                var mostPopularProduct = ShopDbClient.GetMostPopularProduct();
+                Console.WriteLine($"Самый популярный продукт: {mostPopularProduct.Name}");
 
-                var products = productRepo.GetAll();
-
-                foreach (var product in products)
+                var customersWithAllAmountSpent = ShopDbClient.GetCustomersWithAllAmountSpent();
+                foreach (var (customer, price) in customersWithAllAmountSpent)
                 {
-                    Console.WriteLine(product);
+                    Console.WriteLine($"{customer.FirstName} {customer.MiddleName} {customer.LastName} оформил заказов на сумму: {price}");
+                }
+
+                var categoriesWithProductCount = ShopDbClient.GetProductsCountByCategory();
+                foreach (var (category, count) in categoriesWithProductCount)
+                {
+                    Console.WriteLine($"{category.Name} продано: {count}");
+                }
+
+                var customerForUpdate = new Customer { FirstName = "Олег", MiddleName = "Иванович", LastName = "Иванов", Email = "new_ail@mail.ru", Phone = "+79553548" };
+                ShopDbClient.UpdateCustomer(customerForUpdate);
+
+                var powder = new Product { Name = "Порошок", Price = 13 };
+                ShopDbClient.DeleteProduct(powder);
+
+                Console.WriteLine("Список продуктов:");
+                foreach (var product in ShopDbClient.GetProductsList())
+                {
+                    Console.WriteLine($"{product.Name}");
+                }
+
+                Console.WriteLine("Список покупателей:");
+                foreach (var customer in ShopDbClient.GetCustomersList())
+                {
+                    Console.WriteLine($"{customer.FirstName} {customer.MiddleName} {customer.LastName} {customer.Email} {customer.Phone}");
                 }
             }
-        }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Ошибка работы программы {e}");
+            }
+        }       
     }
 }

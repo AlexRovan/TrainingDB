@@ -1,6 +1,6 @@
 ﻿namespace ShopDatabase.Model
 {
-    public class CategoryProduct
+    public class CategoryProducts
     {
         public int Id { get; set; }
 
