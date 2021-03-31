@@ -28,8 +28,9 @@ namespace ShopDatabase
                 ShopDbClient.UpdateCustomer(customerForUpdate);
 
                 var powder = new Product { Name = "Порошок", Price = 13 };
-                ShopDbClient.DeleteProduct(powder);
+                var food = new Category { Name = "Продукты питания" };
 
+                ShopDbClient.AddProduct(powder, food);             
                 Console.WriteLine("Список продуктов:");
                 foreach (var product in ShopDbClient.GetProductsList())
                 {
@@ -41,6 +42,8 @@ namespace ShopDatabase
                 {
                     Console.WriteLine($"{customer.FirstName} {customer.MiddleName} {customer.LastName} {customer.Email} {customer.Phone}");
                 }
+
+                ShopDbClient.DeleteProduct(powder);
             }
             catch (Exception e)
             {

@@ -32,7 +32,6 @@ namespace ShopDatabase
             }
         }
 
-
         public static List<Product> GetProductsList()
         {
             using (var uow = new UnitOfWork(new ShopDbContext()))
